@@ -1,15 +1,15 @@
 What the hell?
 --------------
-Furious Mustard is intended to be a basic media index/display web app thing. Think Plex Media Server without the massive memory footprint, janky web interface and a bunch of streaming stuff I don't care about. This is my way of learning about Go/MongoDB and is designed for my rather specific use case, I'm not sure how much further effort I'll put in once it works.
+Furious Mustard is intended to be a basic media index/display web app thing. Think Plex Media Server without the massive memory footprint, janky web interface and a bunch of streaming stuff I don't care about. This is my way of learning about Go/Redis and is designed for my rather specific use case, I'm not sure how much further effort I'll put in once it works.
 
 Design stuff
 ------------
 - Go!
 - Use the http module to serve pages - [Martini][http://martini.codegangsta.io/]?
 - Thin server, thick-ish client?
-- Database storage: MongoDB.
+- Storage: Redis
+- Cache TheMovieDB API responses in Redis
 - Client: Angular/Backbone/Ember/other flavour of the month?
-- Cache TMDB API responses on disk - cache/[0-F]/sha1, expire using mtime?
 - Goroutines:
   + HTTP server
   + A thing to discover files and queue them for updating

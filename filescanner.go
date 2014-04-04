@@ -27,7 +27,7 @@ func FileScanner() {
 }
 
 func scanFiles() {
-	if (scanning == true) {
+	if scanning == true {
 		return
 	}
 	scanning = true
@@ -39,13 +39,13 @@ func scanFiles() {
 	for _, moviePath := range Config.Paths.Movies {
 		moviePath, err := filepath.EvalSymlinks(moviePath)
 		if err != nil {
-			log.Warn("EvalSymlinks error: %s", err.Error())
+			log.Warning("EvalSymlinks error: %s", err.Error())
 			return
 		}
 
 		err = filepath.Walk(moviePath, visitMovies)
 		if err != nil {
-			log.Warn("Walk error: %s", err.Error())
+			log.Warning("Walk error: %s", err.Error())
 			return
 		}
 	}
@@ -68,7 +68,7 @@ func visitMovies(path string, f os.FileInfo, err error) error {
 		cmd := exec.Command("mediainfo", "--output=XML", path)
 		out, err := cmd.Output()
 		if err != nil {
-			log.Warn("mediainfo error: %s", err.Error())
+			log.Warning("mediainfo error: %s", err.Error())
 			return nil
 		}
 
