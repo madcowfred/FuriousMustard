@@ -2,21 +2,21 @@ package main
 
 import (
 	"os"
-	"path/filepath"
 	"regexp"
+	"os/exec"
+	"path/filepath"
 	"time"
 )
 
 var (
-	reMovie  = regexp.MustCompile(`^(.+) \[.*?\][\[\(](\d+)[\)\]]$`)
+	reMovie  = regexp.MustCompile(`^(.+) (?:\[.*?\]|)[\[\(](\d+)[\)\]]\.(?:avi|mkv|mp4)$`)
 	scanning = false
 )
 
 func FileScanner() {
-	// Call scanFiles at the start
 	scanFiles()
 
-	// Call scanFiles once every 60 seconds thereafter
+	// Call scanFiles once every 60 seconds
 	ticker := time.NewTicker(60 * time.Second)
 	for {
 		select {
@@ -27,10 +27,9 @@ func FileScanner() {
 }
 
 func scanFiles() {
-	if scanning == true {
+	if (scanning == true) {
 		return
 	}
-
 	scanning = true
 	defer func() {
 		scanning = false
@@ -40,21 +39,41 @@ func scanFiles() {
 	for _, moviePath := range Config.Paths.Movies {
 		moviePath, err := filepath.EvalSymlinks(moviePath)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("EvalSymlinks error: %s", err.Error())
 			return
 		}
 
 		err = filepath.Walk(moviePath, visitMovies)
 		if err != nil {
-			log.Error(err.Error())
+			log.Error("Walk error: %s", err.Error())
 			return
 		}
 	}
-
-	scanning = false
 }
 
 func visitMovies(path string, f os.FileInfo, err error) error {
-	log.Debug("Visited: %s", path)
+	// Get a Redis connection from our pool
+	conn := redisPool.Get()
+	defer conn.Close()
+
+	// Get a filename without the path and match against our scary regexp
+	base := filepath.Base(path)
+	matches := reMovie.FindStringSubmatch(base)
+
+	// If it matches, do some stuff
+	if len(matches) > 0 {
+		log.Debug("%s -> %q", base, matches)
+
+		// Check mediainfo
+		cmd := exec.Command("mediainfo", "--output=XML", path)
+		out, err := cmd.Output()
+		if err != nil {
+			log.Error("mediainfo error: %s", err.Error())
+			return nil
+		}
+
+		log.Debug(string(out))
+	}
+
 	return nil
 }
