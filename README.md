@@ -1,5 +1,6 @@
-What the hell?
---------------
+FuriousMustard
+==============
+
 Furious Mustard is intended to be a basic media index/display web app thing. Think Plex Media Server without the massive memory footprint, janky web interface and a bunch of streaming stuff I don't care about. This is my way of learning about Go/Redis and is designed for my rather specific use case, I'm not sure how much further effort I'll put in once it works.
 
 Design stuff
