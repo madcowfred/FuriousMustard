@@ -1,13 +1,13 @@
 package main
 
 import (
+	"code.google.com/p/gcfg"
 	"flag"
+	"github.com/garyburd/redigo/redis"
+	"github.com/op/go-logging"
 	"os/user"
 	"path/filepath"
 	"time"
-	"code.google.com/p/gcfg"
-	"github.com/garyburd/redigo/redis"
-	"github.com/op/go-logging"
 )
 
 // Command ling flags
@@ -17,7 +17,11 @@ var configFlag = flag.String("c", "", "Use alternative config file")
 // Config
 var Config struct {
 	Redis struct {
-		ConnectionString	string
+		ConnectionString string
+	}
+	Paths struct {
+		Movies []string
+		TV     []string
 	}
 }
 
@@ -26,9 +30,9 @@ var log = logging.MustGetLogger("furiousmustard")
 
 // Redis connection pool
 var redisPool = &redis.Pool{
-	MaxIdle: 2,
+	MaxIdle:     2,
 	IdleTimeout: 60 * time.Second,
-	Dial: func () (redis.Conn, error) {
+	Dial: func() (redis.Conn, error) {
 		c, err := redis.Dial("tcp", Config.Redis.ConnectionString)
 		if err != nil {
 			return nil, err
@@ -76,4 +80,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Set up channels
+	//apiChan := make(chan *string, 10)
+
+	// Start the file scanner
+	FileScanner()
 }
