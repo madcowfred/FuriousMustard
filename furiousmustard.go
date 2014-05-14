@@ -3,47 +3,24 @@ package main
 import (
 	"code.google.com/p/gcfg"
 	"flag"
-	"github.com/garyburd/redigo/redis"
 	"github.com/op/go-logging"
 	"os/user"
 	"path/filepath"
-	"time"
 )
 
 // Command ling flags
-var verboseFlag = flag.Bool("v", false, "Show verbose debug information")
 var configFlag = flag.String("c", "", "Use alternative config file")
+var verboseFlag = flag.Bool("v", false, "Show verbose debug information")
 
 // Config
 var Config struct {
-	Redis struct {
+	Database struct {
 		ConnectionString string
-	}
-	Paths struct {
-		Movies []string
-		TV     []string
 	}
 }
 
 // Logger
 var log = logging.MustGetLogger("furiousmustard")
-
-// Redis connection pool
-var redisPool = &redis.Pool{
-	MaxIdle:     2,
-	IdleTimeout: 60 * time.Second,
-	Dial: func() (redis.Conn, error) {
-		c, err := redis.Dial("tcp", Config.Redis.ConnectionString)
-		if err != nil {
-			return nil, err
-		}
-		return c, err
-	},
-	TestOnBorrow: func(c redis.Conn, t time.Time) error {
-		_, err := c.Do("PING")
-		return err
-	},
-}
 
 func main() {
 	// Parse command line flags
@@ -81,9 +58,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Set up channels
-	//apiChan := make(chan *string, 10)
-
-	// Start the file scanner
-	FileScanner()
 }
